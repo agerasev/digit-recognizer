@@ -8,8 +8,8 @@
 #include "reader.hpp"
 
 static const uint HIDDEN = 30;
-static const uint EPOCHS = 128;
-static const uint SAMPLE = 25;
+static const uint EPOCHS = 16;
+static const uint SAMPLE = 10;
 static const real RATE = 1.0;
 
 static const uint SEED = 0x87654321;
@@ -47,9 +47,21 @@ int main(int, char *[])
 	GD_Buffer *buf = GD_createBuffer(net);
 	GD_clearGradient(buf);
 	
+	std::cout << "Digit recognizing neural network\n"
+	          << "Stochastic gradient descent learning algorithm\n"
+	          << "Cross-entropy cost function\n"
+	          << "Train set size: " << train_set->size << "\n"
+	          << "Test set size: " << test_set->size << "\n"
+	          << "Training group size: " << SAMPLE << "\n"
+	          << "1 hidden layer of " << HIDDEN << " neurons\n"
+	          << "Learning rate: " << RATE << "\n"
+	          << "Number of epochs: " << EPOCHS << "\n"
+	          << "Random generator seed: " << SEED << "\n" 
+	          << std::endl;
+	
 	for(uint epoch = 0; epoch < EPOCHS; ++epoch)
 	{
-		std::cout << "Epoch " << epoch << std::endl;
+		std::cout << "Epoch " << epoch + 1 << std::endl;
 		
 		/* Learning */
 		GD_shuffle(train_set->size,(void**)train_set->images,SEED*(epoch + 1));
@@ -113,7 +125,7 @@ int main(int, char *[])
 	destroyNetwork(net);
 	
 	destroyImageSet(test_set);
-	destroyImageSet(train_set);
+	//destroyImageSet(train_set);
 	
 	return 0;
 }

@@ -1,0 +1,77 @@
+Digit recognizing neural network
+Stochastic gradient descent learning algorithm
+Train set size: 10000
+Test set size: 10000
+Training group size: 4
+1 hidden layer of 30 neurons
+Learning rate: 0.5
+Number of epochs: 16
+Random generator seed: 2271560481
+
+Epoch 1
+Total score: 8912 of 10000
+Average cost: 0.0969246
+
+Epoch 2
+Total score: 9211 of 10000
+Average cost: 0.0688942
+
+Epoch 3
+Total score: 9378 of 10000
+Average cost: 0.0558751
+
+Epoch 4
+Total score: 9425 of 10000
+Average cost: 0.0503191
+
+Epoch 5
+Total score: 9510 of 10000
+Average cost: 0.043386
+
+Epoch 6
+Total score: 9578 of 10000
+Average cost: 0.0392814
+
+Epoch 7
+Total score: 9604 of 10000
+Average cost: 0.0373876
+
+Epoch 8
+Total score: 9652 of 10000
+Average cost: 0.0324783
+
+Epoch 9
+Total score: 9665 of 10000
+Average cost: 0.0318176
+
+Epoch 10
+Total score: 9703 of 10000
+Average cost: 0.0281397
+
+Epoch 11
+Total score: 9709 of 10000
+Average cost: 0.0267855
+
+Epoch 12
+Total score: 9724 of 10000
+Average cost: 0.0257811
+
+Epoch 13
+Total score: 9733 of 10000
+Average cost: 0.0250839
+
+Epoch 14
+Total score: 9738 of 10000
+Average cost: 0.0235996
+
+Epoch 15
+Total score: 9762 of 10000
+Average cost: 0.0210866
+
+Epoch 16
+Total score: 9766 of 10000
+Average cost: 0.0209221
+
+real	1m30.417s
+user	1m30.416s
+sys	0m0.024s

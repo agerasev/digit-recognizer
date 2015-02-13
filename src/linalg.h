@@ -25,8 +25,9 @@ void product_array(const uint s, const real *a, const real *b, real *out);
  * out[s] = a[s]*b */
 void product_array_scal(const uint s, const real *a, const real b, real *out);
 
-/** Fill array a[s] with zeros */
-void zero_array(const uint s, real *a);
+/** Fill array with scalar value
+ * a[s] = b */
+void scal_array(const uint s, const real b, real *a);
 
 /** Matrix-vector product 
  * mat[sx][sy], in[sx], out[sy] */

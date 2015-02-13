@@ -54,12 +54,12 @@ void product_array_scal(const uint s, const real *a, const real b, real *out)
 	}
 }
 
-void zero_array(const uint s, real *a)
+void scal_array(const uint s, const real b, real *a)
 {
 	uint i;
 	for(i = 0; i < s; ++i)
 	{
-		a[i] = 0.0;
+		a[i] = b;
 	}
 }
 

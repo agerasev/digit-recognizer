@@ -1,0 +1,78 @@
+Digit recognizing neural network
+Stochastic gradient descent learning algorithm
+Cross-entropy cost function (with sigma_deriv)
+Train set size: 10000
+Test set size: 10000
+Training group size: 10
+1 hidden layer of 30 neurons
+Learning rate: 1
+Number of epochs: 16
+Random generator seed: 2271560481
+
+Epoch 1
+Total score: 9130 of 10000
+Average cost: 0.0554171
+
+Epoch 2
+Total score: 9382 of 10000
+Average cost: 0.0410337
+
+Epoch 3
+Total score: 9509 of 10000
+Average cost: 0.0324762
+
+Epoch 4
+Total score: 9567 of 10000
+Average cost: 0.0287795
+
+Epoch 5
+Total score: 9643 of 10000
+Average cost: 0.0256916
+
+Epoch 6
+Total score: 9712 of 10000
+Average cost: 0.0215146
+
+Epoch 7
+Total score: 9763 of 10000
+Average cost: 0.0183484
+
+Epoch 8
+Total score: 9805 of 10000
+Average cost: 0.0173133
+
+Epoch 9
+Total score: 9764 of 10000
+Average cost: 0.0182992
+
+Epoch 10
+Total score: 9784 of 10000
+Average cost: 0.0172552
+
+Epoch 11
+Total score: 9895 of 10000
+Average cost: 0.0102949
+
+Epoch 12
+Total score: 9857 of 10000
+Average cost: 0.0127739
+
+Epoch 13
+Total score: 9901 of 10000
+Average cost: 0.00993542
+
+Epoch 14
+Total score: 9935 of 10000
+Average cost: 0.00765096
+
+Epoch 15
+Total score: 9935 of 10000
+Average cost: 0.00781459
+
+Epoch 16
+Total score: 9941 of 10000
+Average cost: 0.00748221
+
+real	1m20.917s
+user	1m20.880s
+sys	0m0.104s
