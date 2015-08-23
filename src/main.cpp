@@ -4,12 +4,11 @@
 
 #include "network.h"
 #include "network_gd.h"
+#include "print_gd.h"
 
 #include "reader.hpp"
 
 static const uint HIDDEN = 30;
-static const uint EPOCHS = 128;
-static const uint SAMPLE = 25;
 static const real RATE = 1.0;
 
 static const uint SEED = 0x87654321;
@@ -47,61 +46,19 @@ int main(int, char *[])
 	GD_Buffer *buf = GD_createBuffer(net);
 	GD_clearGradient(buf);
 	
-	for(uint epoch = 0; epoch < EPOCHS; ++epoch)
-	{
-		std::cout << "Epoch " << epoch << std::endl;
-		
-		/* Learning */
-		GD_shuffle(train_set->size,(void**)train_set->images,SEED*(epoch + 1));
-		for(uint i = 0; i < train_set->size; ++i)
-		{
-			real result[10] = {0.0};
-			result[train_set->images[i]->digit] = 1.0;
-			
-			feedforward(net,train_set->images[i]->data);
-			GD_computeError(net,buf,result);
-			GD_addGradient(net,buf);
-			
-			if(!((i + 1)%SAMPLE))
-			{
-				GD_normalizeGradient(buf,SAMPLE);
-				GD_performDescent(net,buf,RATE);
-				GD_clearGradient(buf);
-			}
-		}
-		
-		/* Testing */
-		uint score = 0;
-		real cost = 0.0;
-		for(uint i = 0; i < test_set->size; ++i)
-		{
-			feedforward(net,test_set->images[i]->data);
-			
-			real result[10] = {0.0};
-			result[test_set->images[i]->digit] = 1.0;
-			cost += GD_computeCost(net,result);
-			
-			real max = net->layer[net->depth]->activation[0];
-			uint digit = 0;
-			for(uint j = 1; j < 10; ++j)
-			{
-				if(net->layer[net->depth]->activation[j] > max)
-				{
-					max = net->layer[net->depth]->activation[j];
-					digit = j;
-				}
-			}
-			
-			if(digit == test_set->images[i]->digit)
-			{
-				++score;
-			}
-		}
-		std::cout << "Total score: " << score << " of " << test_set->size << std::endl;
-		std::cout << "Average cost: " << cost/test_set->size << std::endl;
-		
-		std::cout << std::endl;
-	}
+	/* Learning */
+	real result[10] = {0.0};
+	result[train_set->images[0]->digit] = 1.0;
+	
+	feedforward(net,train_set->images[0]->data);
+	GD_computeError(net,buf,result);
+	GD_addGradient(net,buf);
+	
+	GD_printBuffer(net,buf);
+
+	GD_normalizeGradient(buf,1);
+	GD_performDescent(net,buf,RATE);
+	GD_clearGradient(buf);
 	
 	GD_destroyBuffer(buf);
 	

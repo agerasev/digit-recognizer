@@ -3,13 +3,15 @@ HDR = \
 	src/linalg.h \
 	src/network.h \
 	src/network_gd.h \
+	src/print_gd.h \
 	src/reader.hpp
 	
 SRC = \
 	src/main.cpp \
 	src/linalg.c \
 	src/network.c \
-	src/network_gd.c
+	src/network_gd.c \
+	src/print_gd.c
 	
 OBJ = $(SRC:src/%=obj/%.o)
 BIN = bin/reco
