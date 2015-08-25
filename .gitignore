@@ -3,6 +3,7 @@
 bin/
 obj/
 case/
+*.txt
 
 *.creator
 *.files

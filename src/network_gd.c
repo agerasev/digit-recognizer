@@ -32,11 +32,14 @@ void GD_randomize(Network *network, uint seed)
 		uint sy = network->connection[i]->output_size;
 		for(iy = 0; iy < sy; ++iy)
 		{
-			network->connection[i]->bias[iy] = (real)(seed = seed*LCA_A + LCA_B)/0xffffffff - 0.5;
 			for(ix = 0; ix < sx; ++ix)
 			{
 				network->connection[i]->weight[iy*sx + ix] = (real)(seed = seed*LCA_A + LCA_B)/0xffffffff - 0.5;
 			}
+		}
+		for(iy = 0; iy < sy; ++iy)
+		{
+			network->connection[i]->bias[iy] = (real)(seed = seed*LCA_A + LCA_B)/0xffffffff - 0.5;
 		}
 	}
 }
@@ -58,19 +61,22 @@ GD_Buffer *GD_createBuffer(const Network *network)
 	uint i;
 	GD_Buffer *buffer = (GD_Buffer*) malloc(sizeof(GD_Buffer));
 	buffer->depth = network->depth;
-	buffer->error = (GD_Error*) malloc(sizeof(GD_Error)*network->depth);
+	buffer->error = (GD_Error*) malloc(sizeof(GD_Error)*(network->depth + 1));
 	buffer->gradient = (GD_Gradient*) malloc(sizeof(GD_Gradient)*network->depth);
-	for(i = 0; i < network->depth; ++i)
+	for(i = 0; i < network->depth + 1; ++i)
 	{
 		buffer->error[i].size = network->layer[i]->size;
 		buffer->error[i].error = (real*) malloc(sizeof(real)*network->layer[i]->size);
 		buffer->error[i].buffer = (real*) malloc(sizeof(real)*network->layer[i]->size);
 		
-		buffer->gradient[i].input_size = network->connection[i]->input_size;
-		buffer->gradient[i].output_size = network->connection[i]->output_size;
-		buffer->gradient[i].grad_weight = (real*) malloc(sizeof(real)*(network->connection[i]->input_size*network->connection[i]->output_size));
-		buffer->gradient[i].grad_bias = (real*) malloc(sizeof(real)*network->connection[i]->output_size);
-		buffer->gradient[i].buffer = (real*) malloc(sizeof(real)*(network->connection[i]->input_size*network->connection[i]->output_size));
+		if(i < network->depth)
+		{
+			buffer->gradient[i].input_size = network->connection[i]->input_size;
+			buffer->gradient[i].output_size = network->connection[i]->output_size;
+			buffer->gradient[i].grad_weight = (real*) malloc(sizeof(real)*(network->connection[i]->input_size*network->connection[i]->output_size));
+			buffer->gradient[i].grad_bias = (real*) malloc(sizeof(real)*network->connection[i]->output_size);
+			buffer->gradient[i].buffer = (real*) malloc(sizeof(real)*(network->connection[i]->input_size*network->connection[i]->output_size));
+		}
 	}
 	return buffer;
 }
@@ -78,13 +84,16 @@ GD_Buffer *GD_createBuffer(const Network *network)
 void GD_destroyBuffer(GD_Buffer *buffer)
 {
 	uint i;
-	for(i = 0; i < buffer->depth; ++i)
+	for(i = 0; i < buffer->depth + 1; ++i)
 	{
 		free(buffer->error[i].error);
 		free(buffer->error[i].buffer);
-		free(buffer->gradient[i].grad_weight);
-		free(buffer->gradient[i].grad_bias);
-		free(buffer->gradient[i].buffer);
+		if(i < buffer->depth)
+		{
+			free(buffer->gradient[i].grad_weight);
+			free(buffer->gradient[i].grad_bias);
+			free(buffer->gradient[i].buffer);
+		}
 	}
 	free(buffer->error);
 	free(buffer->gradient);
@@ -107,38 +116,38 @@ void GD_computeError(const Network *network, GD_Buffer *buffer, const real *resu
 	    network->layer[network->depth]->size,
 	    network->layer[network->depth]->activation,
 	    result,
-	    buffer->error[network->depth-1].error
+	    buffer->error[network->depth].buffer
 	);
 	sigma_deriv_vec(
 	    network->layer[network->depth]->size,
 	    network->layer[network->depth]->input,
-	    buffer->error[network->depth-1].buffer
+	    buffer->error[network->depth].error
 	);
 	product_array(
 	    network->layer[network->depth]->size,
-	    buffer->error[network->depth-1].error,
-	    buffer->error[network->depth-1].buffer,
-	    buffer->error[network->depth-1].error
+	    buffer->error[network->depth].buffer,
+	    buffer->error[network->depth].error,
+	    buffer->error[network->depth].error
 	);
 	for(i = network->depth - 1; i > 0; --i)
 	{
 		product_mat_t_vec(
-				network->connection[i]->output_size,
+		    network->connection[i]->output_size,
 		    network->connection[i]->input_size,
 		    network->connection[i]->weight,
-		    buffer->error[i].error,
-		    buffer->error[i-1].error
+		    buffer->error[i + 1].error,
+		    buffer->error[i].buffer
 		);
 		sigma_deriv_vec(
 		    network->layer[i]->size,
 		    network->layer[i]->input,
-		    buffer->error[i-1].buffer
+		    buffer->error[i].error
 		);
 		product_array(
 		    network->layer[i]->size,
-		    buffer->error[i-1].error,
-		    buffer->error[i-1].buffer,
-		    buffer->error[i-1].error
+		    buffer->error[i].buffer,
+		    buffer->error[i].error,
+		    buffer->error[i].error
 		);
 	}
 }
@@ -149,10 +158,10 @@ void GD_addGradient(const Network *network, GD_Buffer *buffer)
 	for(i = 0; i < network->depth; ++i)
 	{
 		product_tensor(
-				network->connection[i]->input_size,
+		    network->connection[i]->input_size,
 		    network->connection[i]->output_size,
 		    network->layer[i]->activation,
-		    buffer->error[i].error,
+		    buffer->error[i + 1].error,
 		    buffer->gradient[i].buffer
 		);
 		sum_array(
@@ -164,7 +173,7 @@ void GD_addGradient(const Network *network, GD_Buffer *buffer)
 		sum_array(
 		    network->connection[i]->output_size,
 		    buffer->gradient[i].grad_bias,
-		    buffer->error[i].error,
+		    buffer->error[i + 1].error,
 		    buffer->gradient[i].grad_bias
 		);
 	}

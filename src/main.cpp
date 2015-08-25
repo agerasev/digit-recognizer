@@ -54,10 +54,13 @@ int main(int, char *[])
 	GD_computeError(net,buf,result);
 	GD_addGradient(net,buf);
 	
-	GD_printBuffer(net,buf);
+	// GD_printBuffer(net,buf);
 
 	GD_normalizeGradient(buf,1);
 	GD_performDescent(net,buf,RATE);
+	
+	GD_printBuffer(net,buf); //
+	
 	GD_clearGradient(buf);
 	
 	GD_destroyBuffer(buf);
@@ -70,7 +73,7 @@ int main(int, char *[])
 	destroyNetwork(net);
 	
 	destroyImageSet(test_set);
-	destroyImageSet(train_set);
+	//destroyImageSet(train_set);
 	
 	return 0;
 }
