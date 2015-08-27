@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 #include "linalg.h"
 
@@ -7,6 +8,7 @@
 static const uint LCA_A = 1103515245;
 static const uint LCA_B = 12345;
 
+/*
 static real sqr(real a)
 {
 	return a*a;
@@ -22,6 +24,7 @@ static real std_dev(const uint s, const real *a1, const real *a2)
 	}
 	return sum;
 }
+*/
 
 void GD_randomize(Network *network, uint seed)
 {
@@ -30,6 +33,7 @@ void GD_randomize(Network *network, uint seed)
 	{
 		uint sx = network->connection[i]->input_size;
 		uint sy = network->connection[i]->output_size;
+		
 		for(iy = 0; iy < sy; ++iy)
 		{
 			for(ix = 0; ix < sx; ++ix)
@@ -37,6 +41,7 @@ void GD_randomize(Network *network, uint seed)
 				network->connection[i]->weight[iy*sx + ix] = (real)(seed = seed*LCA_A + LCA_B)/0xffffffff - 0.5;
 			}
 		}
+		
 		for(iy = 0; iy < sy; ++iy)
 		{
 			network->connection[i]->bias[iy] = (real)(seed = seed*LCA_A + LCA_B)/0xffffffff - 0.5;
@@ -102,11 +107,16 @@ void GD_destroyBuffer(GD_Buffer *buffer)
 
 real GD_computeCost(const Network *network, const real *result)
 {
-	return 0.5*std_dev(
-	    network->layer[network->depth]->size,
-	    network->layer[network->depth]->activation,
-	    result
-	);
+	uint i;
+	real sum = 0.0;
+	for(i = 0; i < network->layer[network->depth]->size; ++i)
+	{
+		real y = result[i];
+		real a = network->layer[network->depth]->activation[i];
+		sum += y*log(a) + (1.0 - y)*log(1.0 - a);
+	}
+	sum /= network->layer[network->depth]->size;
+	return -sum;
 }
 
 void GD_computeError(const Network *network, GD_Buffer *buffer, const real *result)
@@ -116,17 +126,6 @@ void GD_computeError(const Network *network, GD_Buffer *buffer, const real *resu
 	    network->layer[network->depth]->size,
 	    network->layer[network->depth]->activation,
 	    result,
-	    buffer->error[network->depth].buffer
-	);
-	sigma_deriv_vec(
-	    network->layer[network->depth]->size,
-	    network->layer[network->depth]->input,
-	    buffer->error[network->depth].error
-	);
-	product_array(
-	    network->layer[network->depth]->size,
-	    buffer->error[network->depth].buffer,
-	    buffer->error[network->depth].error,
 	    buffer->error[network->depth].error
 	);
 	for(i = network->depth - 1; i > 0; --i)
@@ -138,15 +137,27 @@ void GD_computeError(const Network *network, GD_Buffer *buffer, const real *resu
 		    buffer->error[i + 1].error,
 		    buffer->error[i].buffer
 		);
-		sigma_deriv_vec(
+		scal_array(
 		    network->layer[i]->size,
-		    network->layer[i]->input,
+		    1.0,
+		    buffer->error[i].error
+		);
+		dif_array(
+		    network->layer[i]->size,
+		    buffer->error[i].error,
+		    network->layer[i]->activation,
 		    buffer->error[i].error
 		);
 		product_array(
 		    network->layer[i]->size,
-		    buffer->error[i].buffer,
 		    buffer->error[i].error,
+		    network->layer[i]->activation,
+		    buffer->error[i].error
+		);
+		product_array(
+		    network->layer[i]->size,
+		    buffer->error[i].error,
+		    buffer->error[i].buffer,
 		    buffer->error[i].error
 		);
 	}
@@ -204,12 +215,14 @@ void GD_clearGradient(GD_Buffer *buffer)
 	uint i;
 	for(i = 0; i < buffer->depth; ++i)
 	{
-		zero_array(
+		scal_array(
 		    buffer->gradient[i].input_size*buffer->gradient[i].output_size,
+		    0.0,
 		    buffer->gradient[i].grad_weight
 		);
-		zero_array(
+		scal_array(
 		    buffer->gradient[i].output_size,
+		    0.0,
 		    buffer->gradient[i].grad_bias
 		);
 	}

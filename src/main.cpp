@@ -9,6 +9,8 @@
 #include "reader.hpp"
 
 static const uint HIDDEN = 30;
+static const uint EPOCHS = 16;
+static const uint SAMPLE = 10;
 static const real RATE = 1.0;
 
 static const uint SEED = 0x87654321;
@@ -54,7 +56,7 @@ int main(int, char *[])
 	GD_computeError(net,buf,result);
 	GD_addGradient(net,buf);
 	
-	// GD_printBuffer(net,buf);
+	// GD_printBuffer(net,buf); //
 
 	GD_normalizeGradient(buf,1);
 	GD_performDescent(net,buf,RATE);

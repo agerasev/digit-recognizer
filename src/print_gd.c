@@ -48,14 +48,14 @@ void GD_printBuffer(const Network *network, GD_Buffer *buffer)
 		//printf("%d: ", buffer->error[l].size);
 		for(ix = 0; ix < buffer->error[l].size; ++ix)
 		{
-			printf("%f ", buffer->error[l].error[ix]);
+			printf("%f ", buffer->error[l].buffer[ix]);
 		}
 		printf("\n");
 		
 		//printf("%d: ", buffer->error[l].size);
 		for(ix = 0; ix < buffer->error[l].size; ++ix)
 		{
-			printf("%f ", buffer->error[l].buffer[ix]);
+			printf("%f ", buffer->error[l].error[ix]);
 		}
 		printf("\n");
 		
